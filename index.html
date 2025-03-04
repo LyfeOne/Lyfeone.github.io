@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanium Alloy Production</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #2c3e50, #4ca1af);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            background: #fff;
+        }
+        select {
+            background: #f1f1f1;
+        }
+        button {
+            background: #27ae60;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2ecc71;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .factory-info {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Furnace Upgrade Helper</h1>
+    <div class="container">
+        <label for="totalAlloyNeeded">Total Alloy Needed:</label>
+        <input type="number" id="totalAlloyNeeded" placeholder="Enter total alloy required" min="1">
+
+        <label for="alloyProduced">Alloy Already Produced:</label>
+        <input type="number" id="alloyProduced" placeholder="Enter alloy already produced" min="0">
+
+        <h3>Factory Levels</h3>
+        <label>Factory 1:</label>
+        <select id="factory1" onchange="updateProduction(1)"></select>
+        <div id="factory1-info" class="factory-info"></div>
+
+        <label>Factory 2:</label>
+        <select id="factory2" onchange="updateProduction(2)"></select>
+        <div id="factory2-info" class="factory-info"></div>
+
+        <label>Factory 3:</label>
+        <select id="factory3" onchange="updateProduction(3)"></select>
+        <div id="factory3-info" class="factory-info"></div>
+
+        <label>Factory 4:</label>
+        <select id="factory4" onchange="updateProduction(4)"></select>
+        <div id="factory4-info" class="factory-info"></div>
+
+        <label>Factory 5:</label>
+        <select id="factory5" onchange="updateProduction(5)"></select>
+        <div id="factory5-info" class="factory-info"></div>
+
+        <button onclick="calculateTime()">Calculate Time</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Initialize level dropdowns from 0 to 30
+        function initDropdowns() {
+            let selects = document.querySelectorAll("select");
+            selects.forEach(select => {
+                for (let i = 0; i <= 30; i++) {
+                    let option = document.createElement("option");
+                    option.value = i;
+                    option.text = i === 0 ? "No Factory (Level 0)" : "Level " + i;
+                    if (i === 15) option.selected = true;
+                    select.appendChild(option);
+                }
+            });
+            // Initialize factory production display
+            for (let i = 1; i <= 5; i++) {
+                updateProduction(i);
+            }
+        }
+
+        function updateProduction(factoryNumber) {
+            let level = document.getElementById(`factory${factoryNumber}`).value;
+            let productionRate = level * 720; // Each level increases by 720
+            if (level == 0) {
+                productionRate = 0;
+            }
+            document.getElementById(`factory${factoryNumber}-info`).innerHTML = `Production Rate: ${productionRate} alloy/hour`;
+        }
+
+        function calculateTime() {
+            let totalAlloyNeeded = document.getElementById("totalAlloyNeeded").value;
+            let alloyProduced = document.getElementById("alloyProduced").value;
+
+            if (!totalAlloyNeeded || totalAlloyNeeded <= 0) {
+                alert("Please enter a valid total alloy amount.");
+                return;
+            }
+            if (!alloyProduced || alloyProduced < 0) {
+                alert("Please enter a valid produced alloy amount.");
+                return;
+            }
+
+            let remainingAlloy = totalAlloyNeeded - alloyProduced;
+            if (remainingAlloy <= 0) {
+                document.getElementById("result").innerHTML = "You already have enough alloy!";
+                return;
+            }
+
+            let totalProduction = 0;
+
+            // Get selected levels and calculate total production
+            for (let i = 1; i <= 5; i++) {
+                let level = document.getElementById(`factory${i}`).value;
+                let production = level * 720;
+                if (level == 0) {
+                    production = 0;
+                }
+                totalProduction += production;
+            }
+
+            // Calculate time in hours
+            let timeInHours = totalProduction > 0 ? remainingAlloy / totalProduction : Infinity;
+            let hours = Math.floor(timeInHours);
+            let minutes = Math.floor((timeInHours - hours) * 60);
+
+            let resultText = `Total Production Rate: ${totalProduction} alloy/hour<br>
+                              Remaining Alloy Needed: ${remainingAlloy}<br>`;
+
+            resultText += totalProduction > 0 ? `Time Left: ${hours}h ${minutes}min` : "No factories producing alloy.";
+
+            document.getElementById("result").innerHTML = resultText;
+        }
+
+        // Initialize on page load
+        initDropdowns();
+    </script>
+
+</body>
+</html>
